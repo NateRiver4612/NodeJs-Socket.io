@@ -1,0 +1,28 @@
+{
+  "name": "nodejs-socket.io",
+  "version": "1.0.0",
+  "description": "This is for midterm",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NateRiver4612/NodeJs-Socket.io.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NateRiver4612/NodeJs-Socket.io/issues"
+  },
+  "homepage": "https://github.com/NateRiver4612/NodeJs-Socket.io#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.1",
+    "express-handlebars": "^6.0.5",
+    "mongoose": "^6.3.3",
+    "nodemon": "^2.0.16",
+    "socket.io": "^4.5.0"
+  }
+}
