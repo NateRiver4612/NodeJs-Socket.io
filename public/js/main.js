@@ -57,7 +57,9 @@ if (socket !== undefined) {
                 </div>
                 <div class="status">
                    ${
-                     user.status
+                     user.status == "hold"
+                       ? '<div class="badge badge-warning badge-pill">Chatting</div>'
+                       : user.status == "true"
                        ? '<div class="badge badge-success badge-pill">Online</div>'
                        : '<div class="badge badge-danger badge-pill">Offline</div>'
                    }

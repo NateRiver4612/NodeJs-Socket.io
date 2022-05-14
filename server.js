@@ -39,7 +39,7 @@ mongoose.connect("mongodb://localhost:27017/mongochat", function (err, db) {
         {
           username: username,
         },
-        { username: username, id: socket.id, status: true },
+        { username: username, id: socket.id, status: "true" },
         { upsert: true }
       );
 
@@ -52,7 +52,7 @@ mongoose.connect("mongodb://localhost:27017/mongochat", function (err, db) {
     socket.on("disconnect", async () => {
       const user = await User.findOneAndUpdate(
         { id: socket.id },
-        { status: false }
+        { status: "false" }
       );
       if (user) {
         console.log(`${user.username} has left the chat`);
@@ -67,9 +67,22 @@ mongoose.connect("mongodb://localhost:27017/mongochat", function (err, db) {
     socket.on("joinRoom", async ({ person_name, current_username, id }) => {
       console.log(`You are now chat with ${person_name}`);
 
+      //Update users status
+      const user = await User.findOneAndUpdate(
+        { username: current_username },
+        { status: "hold" }
+      );
+      if (user) {
+        console.log(`${user.username} has join the private chat`);
+
+        //Load all the users
+        const user_list = await User.find({});
+        socket.emit("load_users", user_list);
+      }
+
       //Load rooms and messages for current user
       const room_chats = await Room.findOne({ room_name: current_username });
-      socket.emit("load_chats", { room_chats });
+      client.emit("load_chats", { room_chats });
 
       //Add room for person
       await User.findOneAndUpdate(
@@ -154,7 +167,7 @@ mongoose.connect("mongodb://localhost:27017/mongochat", function (err, db) {
         //Load rooms and messages for current user
         const room_chats = await Room.findOne({ room_name: current_username });
         console.log(room_chats);
-        socket.emit("load_chats", { room_chats });
+        client.emit("load_chats", { room_chats });
       }
     );
   });
