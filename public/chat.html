@@ -36,7 +36,7 @@
               <button class="btn btn-danger">Leave chat</button>
             </div>
           </div>
-          <div class="conversation">
+          <div class="conversation" id="conversation">
               <div class="message my-message">Ra quân chiến dịch Xuân tình nguyện năm 2021
                 <span class="time">08:59</span>
               </div>
@@ -46,11 +46,11 @@
               </div>
            
           </div>
-          <div class="message-input">
+          <form id="chat-form" class="message-input"> 
             <!-- <div class="typing" >Phạm Công Chánh đang soạn tin...</div> -->
-            <input type="text" name="text" id="text" placeholder="Nhập tin nhắn">
-            <button class="btn material-icons" id="send-btn" style="font-size: large;border: none;color:#1182ea;display: flex; align-items: center;margin-right: 10px;">send</button>
-          </div>
+            <input type="text" required id="text" placeholder="Nhập tin nhắn">
+            <button class="btn material-icons" type="submit" id="send-btn" style="font-size: large;border: none;color:#1182ea;display: flex; align-items: center;margin-right: 10px;">send</button>
+          </form>
         </div>
      
       </div>

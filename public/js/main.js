@@ -47,9 +47,11 @@ if (socket !== undefined) {
                     <input class="form-control" type="hidden" id="username"  name="username"  style="border:none !important"  value="${
                       user.username
                     }">
+                   
                     <input class="form-control" type="hidden" id="id"  name="id"  style="border:none !important"  value="${
                       user.id
                     }">
+                     <input class="form-control" type="hidden" id="current_username"  name="current_username"  style="border:none !important"  value="${username}">
                   </div>
                   <div class="online">Truy cập lúc: 16:45'</div>
                 </div>

@@ -6,6 +6,7 @@ const socketio = require("socket.io");
 var mongoose = require("mongoose");
 
 const User = require("./models/user.model");
+const Room = require("./models/room.model");
 
 const app = express();
 const server = http.createServer(app);
@@ -63,9 +64,99 @@ mongoose.connect("mongodb://localhost:27017/mongochat", function (err, db) {
     });
 
     //Catch joint room from client
-    socket.on("joinRoom", async ({ username, id }) => {
-      console.log(`You are now chat with ${username}`);
+    socket.on("joinRoom", async ({ person_name, current_username, id }) => {
+      console.log(`You are now chat with ${person_name}`);
+
+      //Load rooms and messages for current user
+      const room_chats = await Room.findOne({ room_name: current_username });
+      socket.emit("load_chats", { room_chats });
+
+      //Add room for person
+      await User.findOneAndUpdate(
+        {
+          username: person_name,
+        },
+        {
+          rooms: [
+            {
+              room_name: current_username,
+            },
+          ],
+        },
+        { upsert: true }
+      );
+
+      //Add person for room
+      await Room.findOneAndUpdate(
+        { room_name: person_name },
+        {},
+        { upsert: true }
+      );
+
+      //Add current_user for room
+      await Room.findOneAndUpdate(
+        { room_name: current_username },
+        {},
+        { upsert: true }
+      );
+
+      //Add room for person
+      await User.findOneAndUpdate(
+        {
+          username: current_username,
+        },
+        {
+          rooms: [
+            {
+              room_name: person_name,
+            },
+          ],
+        },
+        { upsert: true }
+      );
     });
+
+    //Catch chat message from client
+    socket.on(
+      "chat_message",
+      async ({ person_name, id, current_username, msg }) => {
+        console.log("Right here");
+        //Add message to person room
+        await Room.findOneAndUpdate(
+          { room_name: person_name },
+          {
+            $push: {
+              messages: [
+                {
+                  text: msg,
+                  username: current_username,
+                },
+              ],
+            },
+          }
+        );
+
+        //Add message to person room
+        await Room.findOneAndUpdate(
+          { room_name: current_username },
+          {
+            $push: {
+              messages: [
+                {
+                  text: msg,
+                  username: current_username,
+                },
+              ],
+            },
+          }
+        );
+
+        //Load rooms and messages for current user
+        const room_chats = await Room.findOne({ room_name: current_username });
+        console.log(room_chats);
+        socket.emit("load_chats", { room_chats });
+      }
+    );
   });
 });
 

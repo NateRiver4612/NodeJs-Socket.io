@@ -1,33 +1,20 @@
 const username_doc = document.getElementById("username-chat");
 const avatar_doc = document.getElementById("avatar-chat");
-const send_btn = document.getElementById("send-btn");
-
-//  await User.findOneAndUpdate(
-//    {
-//      username: username,
-//    },
-//    {
-//      $push: {
-//        rooms: [
-//          {
-//            room_name: username,
-//            messages: [{ text: "Hello" }],
-//          },
-//        ],
-//      },
-//    },
-//    { upsert: true }
-//  );
+const chat_form = document.getElementById("chat-form");
+const conversation_doc = document.getElementById("conversation");
 
 const url = window.location.href;
 const info = url.split("?")[1];
 const userInfo = info.split("&");
 
-const username = userInfo[0].split("=")[1];
+const person_name = userInfo[0].split("=")[1];
 const id = userInfo[1].split("=")[1];
+const current_username = userInfo[2].split("=")[1];
 
-username_doc.innerHTML = username;
-avatar_doc.innerHTML = username.split("")[0];
+console.log(person_name, id, current_username);
+
+username_doc.innerHTML = person_name;
+avatar_doc.innerHTML = person_name.split("")[0];
 
 // Connect to socket.io
 var socket = io.connect("http://localhost:5000");
@@ -36,8 +23,42 @@ var socket = io.connect("http://localhost:5000");
 if (socket !== undefined) {
   // Join chatroom
   console.log("connected to chat room");
-  socket.emit("joinRoom", { username, id });
+  socket.emit("joinRoom", { person_name, id, current_username });
+
+  //Catch load chats for users
+  socket.on("load_chats", async ({ room_chats }) => {
+    let html = "";
+    room_chats.messages.map((chat) => {
+      html += `<div
+       class="message ${
+         chat.username == current_username ? "their-message" : " my-message"
+       }">${chat.text}
+                <span class="time">${chat.date}</span>
+              </div>`;
+    });
+
+    conversation_doc.innerHTML = html;
+  });
 }
 
 //Message submit
-send_btn.addEventListener("click", () => {});
+chat_form.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  // Get message text
+  let msg = e.target.elements.text.value;
+  msg = msg.trim();
+
+  if (!msg) {
+    return false;
+  }
+
+  console.log("Send message");
+
+  // Emit message to server
+  socket.emit("chat_message", { person_name, id, current_username, msg });
+
+  // Clear input
+  e.target.elements.text.value = "";
+  e.target.elements.text.focus();
+});
