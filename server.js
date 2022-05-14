@@ -1,44 +1,74 @@
+const mongo = require("mongodb").MongoClient;
 const express = require("express");
 const path = require("path");
-const { engine } = require("express-handlebars");
+const http = require("http");
+const socketio = require("socket.io");
+var mongoose = require("mongoose");
+
+const User = require("./models/user.model");
+
 const app = express();
-const socketio = require('socket.io');
 const server = http.createServer(app);
-const io = socketio(server);
+const client = require("socket.io").listen(5000).sockets;
 
+if (typeof localStorage === "undefined" || localStorage === null) {
+  var LocalStorage = require("node-localstorage").LocalStorage;
+  localStorage = new LocalStorage("./scratch");
+}
 
-app.use(require("cookie-parser")("secret"));
-app.use(require("express-session")({ cookie: { maxAge: null } }));
-app.use(require("body-parser").urlencoded({ extended: false }));
-app.use(require("body-parser").json());
+// Set static folder
+app.use(express.static(path.join(__dirname, "public")));
 
-app.engine(
-  "handlebars",
-  engine({
-    defaultLayout: "main",
-    helpers: {
-      username: function () {
-        const user = JSON.parse(localStorage.getItem("user"));
-        return user["username"];
-      },
-    },
-  })
-);
+// Connect to mongo
+mongoose.connect("mongodb://localhost:27017/mongochat", function (err, db) {
+  if (err) {
+    throw err;
+  }
 
+  console.log("MongoDB connected...");
 
-app.set("view engine", "handlebars");
-app.set("views", path.join(__dirname, "views"));
+  // Connect to Socket.io
+  client.on("connection", async function (socket) {
+    // Welcome new user
+    socket.emit("welcome_user", "Welcome to ChatCord!");
 
-app.use(express.json());
-app.use(express.static(path.join(__dirname, "/public")));
+    //Catch add_user event
+    socket.on("add_user", async (username) => {
+      await User.findOneAndUpdate(
+        {
+          username: username,
+        },
+        { username: username, id: socket.id, status: true },
+        { upsert: true }
+      );
 
+      //Load all the users
+      const user_list = await User.find({});
+      socket.emit("load_users", user_list);
+    });
 
-//For all clients connect
+    // Runs when client disconnects
+    socket.on("disconnect", async () => {
+      const user = await User.findOneAndUpdate(
+        { id: socket.id },
+        { status: false }
+      );
+      if (user) {
+        console.log(`${user.username} has left the chat`);
 
+        //Load all the users
+        const user_list = await User.find({});
+        socket.emit("load_users", user_list);
+      }
+    });
 
+    //Catch joint room from client
+    socket.on("joinRoom", async ({ username, id }) => {
+      console.log(`You are now chat with ${username}`);
+    });
+  });
+});
 
 const PORT = process.env.PORT || 8000;
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-

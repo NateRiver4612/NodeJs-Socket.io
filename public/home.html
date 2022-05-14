@@ -1,0 +1,63 @@
+<!--
+  Created by: Mai Van Manh
+  Date: 11/02/2020
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Danh sách người dùng</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css    ">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="css/index.css" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-7">
+        <div class="rounded border mt-5 mb-3">
+          <div style="display: flex;justify-content: flex-end;">
+            <button id ="log-out-btn" class="btn btn-danger">Log out</button>
+          </div>
+          <h4 class="text-primary text-center my-5">Danh sách người dùng trực tuyến</h4>
+          <p style="padding: 0 24px">Số người online: <strong class="badge badge-danger badge-pill " id="people-quantity"></strong></p>
+          <div class="people" id="people">
+        
+            <!-- <form class="user" action="chat.html">
+              <button class="btn btn-light" style="display:flex; width: 100%;border: none !important;">
+                <div class="avatar">C</div>
+                <div class="user-info">
+                  <div class="user-name">Phạm Công Chánh</div>
+                  <div class="online">Truy cập lúc: 16:45'</div>
+                </div>
+                <div class="status">
+                  <div class="badge badge-danger badge-pill">Offile</div>
+                </div>
+              </button>
+            </form>  -->
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="online-notification" class="alert alert-success d-inline position-fixed small" style="bottom: 20px; left: 20px">
+      <strong>Trần Quang Trí</strong> vừa mới online
+    </div>
+    <div id="offline-notification" class="alert alert-danger d-inline position-fixed small" style="bottom: 20px; right: 20px">
+      <strong>Trần Quang Trí</strong> đã thoát khỏi ứng dụng
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+
+</html>

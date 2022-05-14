@@ -1,0 +1,64 @@
+<!--
+  Created by: Mai Van Manh
+  Date: 11/02/2020
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Trò chuyện</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="css/chat.css" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-9">
+        <div class="rounded border mt-3 mb-3">
+          <div class="user">
+            <div class="avatar-chat" id="avatar-chat">C</div>
+            <div class="user-info">
+              <div class="username-chat" id="username-chat">Phạm Công Chánh</div>
+              <div class="online">Vừa mới truy cập</div>
+            </div>
+            <div class="actions">
+              <i class="fas fa-phone-alt"></i>
+              <i class="fas fa-video"></i>
+              <i class="fas fa-search"></i>
+              <button class="btn btn-danger">Leave chat</button>
+            </div>
+          </div>
+          <div class="conversation">
+              <div class="message my-message">Ra quân chiến dịch Xuân tình nguyện năm 2021
+                <span class="time">08:59</span>
+              </div>
+            
+              <div class="message their-message">Mình cũng sẽ đăng ký tham gia
+                <span class="time">08:59</span>
+              </div>
+           
+          </div>
+          <div class="message-input">
+            <!-- <div class="typing" >Phạm Công Chánh đang soạn tin...</div> -->
+            <input type="text" name="text" id="text" placeholder="Nhập tin nhắn">
+            <button class="btn material-icons" id="send-btn" style="font-size: large;border: none;color:#1182ea;display: flex; align-items: center;margin-right: 10px;">send</button>
+          </div>
+        </div>
+     
+      </div>
+    </div>
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
+    <script src="js/chat.js"></script>
+</body>
+
+</html>

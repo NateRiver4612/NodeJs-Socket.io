@@ -1,0 +1,27 @@
+ p.item {
+     padding: 16px;
+     text-align: center;
+     border-radius: 8px;
+     color: white;
+     background-color: green;
+ }
+
+ .google-button {
+     height: 40px;
+     width: 100%;
+     background-color: #4688F1;
+     color: white;
+     text-align: center;
+     line-height: 40px;
+     border-radius: 2px;
+ }
+
+.login-button{
+    width: 100%;
+}
+
+ .google-button:hover {
+     cursor: pointer;
+     background-color: #2563c7;
+     transition: 0.3s;
+ }
