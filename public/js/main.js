@@ -2,6 +2,8 @@ const userList = document.getElementById("people");
 const peopleQuantity = document.getElementById("people-quantity");
 const avatar = document.getElementById("avatar");
 const logoutBtn = document.getElementById("log-out-btn");
+const offline_doc = document.getElementById("offline-notification");
+const online_doc = document.getElementById("online-notification");
 
 // Connect to socket.io
 var socket = io.connect("http://localhost:5000");
@@ -13,7 +15,30 @@ if (socket !== undefined) {
   const url = window.location.href;
   const username = url.split("=")[1];
 
+  offline_doc.innerHTM = "";
+  online_doc.innerHTML = "";
+
+  offline_doc.addEventListener("click", () => {
+    offline_doc.innerHTML = "";
+  });
+
+  online_doc.addEventListener("click", () => {
+    online_doc.innerHTML = "";
+  });
+
   //Log out event
+  socket.on("leave_app", ({ user }) => {
+    console.log(`${user.username} has left the app`);
+    offline_doc.innerHTML = `<strong>${user.username}</strong> đã thoát khỏi ứng dụng`;
+  });
+
+  //handle login event from
+  socket.on("join_notify", ({ user }) => {
+    console.log(`${user.username} has join the app`);
+    online_doc.innerHTML = `<strong>${user.username}</strong> vừa mới online`;
+  });
+
+  //Add log out event
   logoutBtn.addEventListener("click", () => {
     window.location = "../index.html";
   });
@@ -21,6 +46,7 @@ if (socket !== undefined) {
   // New user event
   socket.on("welcome_user", async (message) => {
     console.log(message + username);
+
     //Add new user
     socket.emit("add_user", username);
   });
@@ -29,7 +55,6 @@ if (socket !== undefined) {
   // Catch load usets event
   socket.on("load_users", async (user_list) => {
     let html = "";
-    console.log(JSON.parse(localStorage.getItem("current_user")));
 
     user_list.map((user) => {
       html += `<form class="user" action="chat.html">
@@ -66,8 +91,9 @@ if (socket !== undefined) {
                 </div>
                 <div>
                 ${
-                  username == user.username
-                    ? `<button class="btn btn-light" type="hidden" disabled type="submit" style="display:flex; color:white ;width: 100%;border: none !important;">Chat</button>`
+                  username == user.username ||
+                  (username != user.chat_with && user.chat_with.length > 0)
+                    ? `<button class="btn btn-secondary" type="hidden" disabled type="submit" style="display:flex ;width: 100%;border: none !important;">Chat</button>`
                     : '<button class="btn btn-primary" type="submit" style="display:flex; width: 100%;border: none !important;">Chat</button>'
                 }
                 </div>

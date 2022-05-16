@@ -4,6 +4,7 @@ const path = require("path");
 const http = require("http");
 const socketio = require("socket.io");
 var mongoose = require("mongoose");
+const moment = require("moment");
 
 const User = require("./models/user.model");
 const Room = require("./models/room.model");
@@ -35,31 +36,33 @@ mongoose.connect("mongodb://localhost:27017/mongochat", function (err, db) {
 
     //Catch add_user event
     socket.on("add_user", async (username) => {
-      await User.findOneAndUpdate(
+      const user = await User.findOneAndUpdate(
         {
           username: username,
         },
-        { username: username, id: socket.id, status: "true" },
+        { username: username, id: socket.id, status: "true", chat_with: "" },
         { upsert: true }
       );
 
       //Load all the users
       const user_list = await User.find({});
-      socket.emit("load_users", user_list);
+      client.emit("load_users", user_list);
+
+      // //Emit join app event
+      socket.broadcast.emit("join_notify", { user });
     });
 
     // Runs when client disconnects
     socket.on("disconnect", async () => {
       const user = await User.findOneAndUpdate(
         { id: socket.id },
-        { status: "false" }
+        { status: "false", chat_with: "" }
       );
       if (user) {
-        console.log(`${user.username} has left the chat`);
-
         //Load all the users
         const user_list = await User.find({});
-        socket.emit("load_users", user_list);
+        client.emit("load_users", user_list);
+        client.emit("leave_app", { user });
       }
     });
 
@@ -70,18 +73,21 @@ mongoose.connect("mongodb://localhost:27017/mongochat", function (err, db) {
       //Update users status
       const user = await User.findOneAndUpdate(
         { username: current_username },
-        { status: "hold" }
+        { status: "hold", chat_with: person_name }
       );
+
       if (user) {
         console.log(`${user.username} has join the private chat`);
 
         //Load all the users
         const user_list = await User.find({});
-        socket.emit("load_users", user_list);
+        client.emit("load_users", user_list);
       }
 
       //Load rooms and messages for current user
-      const room_chats = await Room.findOne({ room_name: current_username });
+      const room_chats = await Room.findOne({
+        room_name: current_username + person_name,
+      });
       client.emit("load_chats", { room_chats });
 
       //Add room for person
@@ -92,24 +98,10 @@ mongoose.connect("mongodb://localhost:27017/mongochat", function (err, db) {
         {
           rooms: [
             {
-              room_name: current_username,
+              room_name: person_name + current_username,
             },
           ],
         },
-        { upsert: true }
-      );
-
-      //Add person for room
-      await Room.findOneAndUpdate(
-        { room_name: person_name },
-        {},
-        { upsert: true }
-      );
-
-      //Add current_user for room
-      await Room.findOneAndUpdate(
-        { room_name: current_username },
-        {},
         { upsert: true }
       );
 
@@ -121,10 +113,24 @@ mongoose.connect("mongodb://localhost:27017/mongochat", function (err, db) {
         {
           rooms: [
             {
-              room_name: person_name,
+              room_name: current_username + person_name,
             },
           ],
         },
+        { upsert: true }
+      );
+
+      //Add person for room
+      await Room.findOneAndUpdate(
+        { room_name: person_name + current_username },
+        {},
+        { upsert: true }
+      );
+
+      //Add current_user for room
+      await Room.findOneAndUpdate(
+        { room_name: current_username + person_name },
+        {},
         { upsert: true }
       );
     });
@@ -136,13 +142,14 @@ mongoose.connect("mongodb://localhost:27017/mongochat", function (err, db) {
         console.log("Right here");
         //Add message to person room
         await Room.findOneAndUpdate(
-          { room_name: person_name },
+          { room_name: person_name + current_username },
           {
             $push: {
               messages: [
                 {
                   text: msg,
                   username: current_username,
+                  date: moment().format("h:mm a"),
                 },
               ],
             },
@@ -151,7 +158,7 @@ mongoose.connect("mongodb://localhost:27017/mongochat", function (err, db) {
 
         //Add message to person room
         await Room.findOneAndUpdate(
-          { room_name: current_username },
+          { room_name: current_username + person_name },
           {
             $push: {
               messages: [
@@ -165,7 +172,9 @@ mongoose.connect("mongodb://localhost:27017/mongochat", function (err, db) {
         );
 
         //Load rooms and messages for current user
-        const room_chats = await Room.findOne({ room_name: current_username });
+        const room_chats = await Room.findOne({
+          room_name: current_username + person_name,
+        });
         console.log(room_chats);
         client.emit("load_chats", { room_chats });
       }

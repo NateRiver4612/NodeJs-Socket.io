@@ -2,6 +2,7 @@ const username_doc = document.getElementById("username-chat");
 const avatar_doc = document.getElementById("avatar-chat");
 const chat_form = document.getElementById("chat-form");
 const conversation_doc = document.getElementById("conversation");
+const leave_btn_doc = document.getElementById("leave-btn");
 
 const url = window.location.href;
 const info = url.split("?")[1];
@@ -27,19 +28,29 @@ if (socket !== undefined) {
 
   //Catch load chats for users
   socket.on("load_chats", async ({ room_chats }) => {
-    let html = "";
-    room_chats.messages.map((chat) => {
-      html += `<div
+    if (room_chats) {
+      let html = "";
+      room_chats.messages.map((chat) => {
+        html += `<div
        class="message ${
          chat.username == current_username ? "their-message" : " my-message"
        }">${chat.text}
                 <span class="time">${chat.date}</span>
               </div>`;
-    });
+      });
 
-    conversation_doc.innerHTML = html;
+      conversation_doc.innerHTML = html;
+    }
   });
 }
+
+//Emit leave chat event
+leave_btn_doc.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  socket.emit("leave_chat", async ({}) => {});
+  history.back();
+});
 
 //Message submit
 chat_form.addEventListener("submit", (e) => {

@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const moment = require("moment");
 
 const UserSchema = new mongoose.Schema({
   username: {
@@ -12,6 +11,10 @@ const UserSchema = new mongoose.Schema({
   status: {
     type: String,
     default: "false",
+  },
+  chat_with: {
+    type: String,
+    default: "",
   },
   rooms: [
     {
